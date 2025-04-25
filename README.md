@@ -1,6 +1,6 @@
-# Simple Telegram Mini App Chat Bot
+# Simple Telegram Mini App Math
 
-A simple Telegram Mini App that responds with 'ok' to any message from the user.
+Try here: https://janson-git.github.io/telegram-mini-app-math/index.html
 
 ## Setup Instructions
 
