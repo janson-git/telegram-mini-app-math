@@ -1,0 +1,416 @@
+:root {
+    color-scheme: var(--tg-color-scheme, light dark);
+}
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background-color: var(--tg-theme-bg-color, #ffffff);
+    color: var(--tg-theme-text-color, #000000);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Top Page Section */
+.top-page {
+    height: 6vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid var(--tg-theme-hint-color, #999999);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--tg-theme-bg-color, #ffffff);
+    z-index: 100;
+    justify-content: space-between;
+}
+
+.back-button {
+    padding: 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.back-icon {
+    width: 24px;
+    height: 24px;
+    filter: var(--tg-theme-button-color, invert(0));
+}
+
+/* Progress Section */
+.progress-section {
+    height: 6vh;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+    padding-right: 20px;
+}
+
+.score, .lives {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Animation for lives counter when a life is lost */
+@keyframes lifeLost {
+    0% { font-size: 16px; }
+    25% { font-size: 19px; }
+    50% { font-size: 16px; }
+    75% { font-size: 19px; }
+    100% { font-size: 16px; }
+}
+
+.life-lost-animation {
+    animation: lifeLost 2s ease;
+    color: #F44336;
+}
+
+/* Animation for score counter when score increments */
+@keyframes scoreGained {
+    0% { font-size: 16px; }
+    25% { font-size: 19px; }
+    50% { font-size: 16px; }
+    75% { font-size: 19px; }
+    100% { font-size: 16px; }
+}
+
+.score-gained-animation {
+    animation: scoreGained 2s ease;
+    color: #4CAF50;
+}
+
+/* Task Section - 20% height */
+.task-section {
+    height: 20vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.division-task {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Style for showing correct answer after wrong answer */
+.correct-answer-display {
+    color: #F44336;
+    font-weight: bold;
+    font-size: 32px;
+    margin-top: 10px;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Submit Section - 30% height */
+.submit-section {
+    /* height: 30vh; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* padding: 20px; */
+    gap: 20px;
+}
+
+.prepared-answer {
+    font-size: 36px;
+    font-weight: bold;
+    min-height: 50px;
+    text-align: center;
+}
+
+.submit-button {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: none;
+    background-color: #ff6b00;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 0;
+}
+
+/* Animation classes for submit button */
+@keyframes correctAnswer {
+    0% { background-color: #ff6b00; }
+    50% { background-color: #4CAF50; }
+    100% { background-color: #ff6b00; }
+}
+
+@keyframes incorrectAnswer {
+    0% { background-color: #ff6b00; }
+    50% { background-color: #F44336; }
+    100% { background-color: #ff6b00; }
+}
+
+.correct-animation {
+    animation: correctAnswer 1s ease;
+}
+
+.incorrect-animation {
+    animation: incorrectAnswer 1s ease;
+}
+
+.button-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+#preparedAnswer {
+    font-size: 48px;
+    line-height: 1;
+}
+
+.submit-text {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+.submit-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.submit-button:active {
+    transform: scale(0.95);
+}
+
+/* Style for disabled submit button */
+.submit-button.disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Answer Section - 40% height */
+.answer-section {
+    height: 40vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.number-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.rectangle-block {
+    width: 60px;
+    height: 80px;
+    border: 1px solid var(--tg-theme-hint-color, #999999);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 5px;
+    cursor: pointer;
+    background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
+}
+
+.rectangle {
+    width: 40px;
+    height: 15px;
+    background-color: var(--tg-theme-button-color, #2481cc);
+    margin: 2px 0;
+    border-radius: 3px;
+}
+
+.number-button {
+    flex: 1;
+    padding: 15px 10px;
+    font-size: 24px;
+    border: none;
+    border-radius: 12px;
+    background-color: var(--tg-theme-button-color, #2481cc);
+    color: var(--tg-theme-button-text-color, #ffffff);
+    cursor: pointer;
+    transition: opacity 0.2s;
+    min-width: 60px;
+}
+
+.number-button:hover {
+    opacity: 0.9;
+}
+
+/* Modal Popup */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--tg-theme-bg-color, #ffffff);
+    padding: 30px;
+    border-radius: 16px;
+    width: 80%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.modal-stats {
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.stat-item {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.start-game-button {
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 12px;
+    background-color: #ff6b00;
+    color: white;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    font-weight: bold;
+    width: 100%;
+}
+
+.start-game-button:hover {
+    opacity: 0.9;
+}
+
+.game-container {
+    display: none;
+    flex-direction: column;
+    height: 94vh; /* calc(100vh - 6vh); */
+    margin-top: 6vh;
+    transition: background-color 0.5s ease;
+}
+
+/* Animation classes for game container background */
+@keyframes correctBackground {
+    0% { background-color: transparent; }
+    50% { background-color: rgba(76, 175, 80, 0.2); }
+    100% { background-color: transparent; }
+}
+
+@keyframes incorrectBackground {
+    0% { background-color: transparent; }
+    50% { background-color: rgba(244, 67, 54, 0.2); }
+    100% { background-color: transparent; }
+}
+
+.correct-background {
+    animation: correctBackground 1s ease;
+}
+
+.incorrect-background {
+    animation: incorrectBackground 1s ease;
+}
+
+.problem-counter {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.submit-section {
+    /* height: 30vh; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* padding: 20px; */
+}
+
+.submit-button {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: none;
+    background-color: #ff6b00;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 0;
+}
+
+.button-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+#preparedAnswer {
+    font-size: 48px;
+    line-height: 1;
+}
+
+.submit-text {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+.submit-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.submit-button:active {
+    transform: scale(0.95);
+} 

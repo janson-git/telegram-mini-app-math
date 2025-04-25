@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="light dark">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Division Math Game</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="public/css/division.css">
+</head>
+<body>
+    <!-- Top Page Section -->
+    <div class="top-page">
+        <button class="back-button" onclick="goBack()">
+            <img src="public/images/icons/left-arrow.png" alt="Back" class="back-icon">
+        </button>
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <div class="score">Score: <span id="score">0</span></div>
+            <div class="lives">Lives: <span id="lives">3</span></div>
+        </div>
+    </div>
+
+    <!-- Start Game Popup -->
+    <div id="startGamePopup" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="modal-title">Division Game</h2>
+            <div class="modal-stats">
+                <div class="stat-item">Total Score: <span id="totalScore">0</span></div>
+                <div class="stat-item">Games Played: <span id="gamesPlayed">0</span></div>
+                <div class="stat-item">Best Score: <span id="bestScore">0</span></div>
+            </div>
+            <button class="start-game-button" onclick="startGame()">Start Game</button>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="gameContainer" class="game-container">
+        <!-- Task Section -->
+        <div class="task-section">
+            <div class="problem-counter">Problem <span id="problemNumber">1</span> of 10</div>
+            <div class="division-task">
+                <span id="dividend">20</span> ÷ <span id="divisor">4</span> = ?
+            </div>
+            <div id="correctAnswerDisplay" class="correct-answer-display"></div>
+        </div>
+
+        <!-- Submit Section -->
+        <div class="submit-section">
+            <button class="submit-button" onclick="submitAnswer()">
+                <div class="button-content">
+                    <span id="preparedAnswer">0</span>
+                    <span class="submit-text">SUBMIT</span>
+                </div>
+            </button>
+        </div>
+
+        <!-- Answer Section -->
+        <div class="answer-section">
+            <div class="number-buttons">
+                <div class="button-container">
+                    <div class="rectangle-block" id="rectBlock1" onclick="removeRectangle(1)"></div>
+                    <button class="number-button" id="numberButton1" onclick="selectNumber(1)">1</button>
+                </div>
+                <div class="button-container">
+                    <div class="rectangle-block" id="rectBlock5" onclick="removeRectangle(5)"></div>
+                    <button class="number-button" id="numberButton5" onclick="selectNumber(5)">5</button>
+                </div>
+                <div class="button-container">
+                    <div class="rectangle-block" id="rectBlock10" onclick="removeRectangle(10)"></div>
+                    <button class="number-button" id="numberButton10" onclick="selectNumber(10)">10</button>
+                </div>
+                <div class="button-container">
+                    <div class="rectangle-block" id="rectBlock50" onclick="removeRectangle(50)"></div>
+                    <button class="number-button" id="numberButton50" onclick="selectNumber(50)">50</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.disableVerticalSwipes()
+
+        // Game state variables
+        let score = 0;
+        let lives = 3;
+        let currentProblem = 0;
+        let totalProblems = 10;
+        let preparedAnswer = null;
+        let gameActive = false;
+        let waitingForClick = false;
+        
+        // Stats variables
+        let totalScore = 0;
+        let gamesPlayed = 0;
+        let bestScore = 0;
+
+        let buttonPresses = {
+            1: 0,
+            5: 0,
+            10: 0,
+            50: 0
+        };
+
+        // Load stats from localStorage if available
+        function loadStats() {
+            if (localStorage.getItem('totalScore')) {
+                totalScore = parseInt(localStorage.getItem('totalScore'));
+            }
+            if (localStorage.getItem('gamesPlayed')) {
+                gamesPlayed = parseInt(localStorage.getItem('gamesPlayed'));
+            }
+            if (localStorage.getItem('bestScore')) {
+                bestScore = parseInt(localStorage.getItem('bestScore'));
+            }
+            
+            updateStatsDisplay();
+        }
+
+        // Save stats to localStorage
+        function saveStats() {
+            localStorage.setItem('totalScore', totalScore);
+            localStorage.setItem('gamesPlayed', gamesPlayed);
+            localStorage.setItem('bestScore', bestScore);
+        }
+
+        // Update stats display in the popup
+        function updateStatsDisplay() {
+            document.getElementById('totalScore').textContent = totalScore;
+            document.getElementById('gamesPlayed').textContent = gamesPlayed;
+            document.getElementById('bestScore').textContent = bestScore;
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        function startGame() {
+            // Reset game state
+            score = 0;
+            lives = 3;
+            currentProblem = 0;
+            gameActive = true;
+            
+            // Update displays
+            document.getElementById('score').textContent = score;
+            document.getElementById('lives').textContent = lives;
+            document.getElementById('problemNumber').textContent = currentProblem + 1;
+            
+            // Hide popup and show game
+            document.getElementById('startGamePopup').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'flex';
+            
+            // Generate first problem
+            generateNewTask();
+        }
+
+        function endGame() {
+            gameActive = false;
+            
+            // Update stats
+            totalScore += score;
+            gamesPlayed++;
+            if (score > bestScore) {
+                bestScore = score;
+            }
+            
+            // Save and update stats
+            saveStats();
+            updateStatsDisplay();
+            
+            // Show popup and hide game
+            document.getElementById('startGamePopup').style.display = 'flex';
+            document.getElementById('gameContainer').style.display = 'none';
+        }
+
+        function selectNumber(number) {
+            if (!gameActive) return;
+            
+            // Check if the button has reached its maximum presses (10)
+            if (buttonPresses[number] >= 10) {
+                return; // Don't allow more presses
+            }
+            
+            // If preparedAnswer is null, initialize it to 0
+            if (preparedAnswer === null) {
+                preparedAnswer = 0;
+            }
+            
+            // Add the clicked number to the prepared answer
+            preparedAnswer += number;
+            document.getElementById('preparedAnswer').textContent = preparedAnswer;
+            
+            // Add a rectangle to the button's block
+            addRectangle(number);
+
+            // If button reached max presses, make it appear disabled
+            if (buttonPresses[number] >= 10) {
+                event.target.style.opacity = '0.3';
+                event.target.style.cursor = 'not-allowed';
+            }
+        }
+
+        function addRectangle(number) {
+            buttonPresses[number]++;
+            const rectBlock = document.getElementById(`rectBlock${number}`);
+            
+            // Create a new rectangle
+            const rectangle = document.createElement('div');
+            rectangle.className = 'rectangle';
+            
+            // Add the rectangle to the block
+            rectBlock.appendChild(rectangle);
+        }
+
+        function removeRectangle(number) {
+            if (buttonPresses[number] > 0) {
+                buttonPresses[number]--;
+                const rectBlock = document.getElementById(`rectBlock${number}`);
+                const numberButton = document.getElementById(`numberButton${number}`);
+                numberButton.style.opacity = '1';
+                numberButton.style.cursor = 'pointer';
+                
+                // Remove the last rectangle
+                if (rectBlock.lastChild) {
+                    rectBlock.removeChild(rectBlock.lastChild);
+                }
+                
+                // Update the prepared answer
+                if (preparedAnswer !== null) {
+                    preparedAnswer -= number;
+                    document.getElementById('preparedAnswer').textContent = preparedAnswer;
+                }
+            }
+        }
+
+        function submitAnswer() {
+            if (!gameActive || preparedAnswer === null || waitingForClick) {
+                return; // Don't proceed if no answer is selected, game is not active, or waiting for click
+            }
+
+            const dividend = parseInt(document.getElementById('dividend').textContent);
+            const divisor = parseInt(document.getElementById('divisor').textContent);
+            const correctAnswer = dividend / divisor;
+            const submitButton = document.querySelector('.submit-button');
+            const gameContainer = document.getElementById('gameContainer');
+
+            currentProblem++;
+            document.getElementById('problemNumber').textContent = currentProblem + 1;
+
+            if (preparedAnswer === correctAnswer) {
+                // Correct answer
+                score += 10;
+                document.getElementById('score').textContent = score;
+                
+                // Apply score gained animation to score counter
+                const scoreElement = document.querySelector('.score');
+                scoreElement.classList.add('score-gained-animation');
+                
+                // Apply correct answer animations to button and background
+                submitButton.classList.add('correct-animation');
+                gameContainer.classList.add('correct-background');
+                
+                // Wait for all animations to complete before continuing
+                setTimeout(() => {
+                    // Remove animations
+                    submitButton.classList.remove('correct-animation');
+                    gameContainer.classList.remove('correct-background');
+                    scoreElement.classList.remove('score-gained-animation');
+                    
+                    // Reset selection
+                    preparedAnswer = null;
+                    document.getElementById('preparedAnswer').textContent = '0';
+                    document.querySelectorAll('.number-button').forEach(button => {
+                        button.style.opacity = '1';
+                    });
+                    
+                    // Clear all rectangle blocks
+                    clearRectangleBlocks();
+                    
+                    // Continue game after animations
+                    if (currentProblem >= totalProblems) {
+                        // Game completed successfully
+                        endGame();
+                    } else {
+                        generateNewTask();
+                    }
+                }, 1000);
+            } else {
+                // Wrong answer
+                lives--;
+                document.getElementById('lives').textContent = lives;
+                
+                // Show correct answer immediately
+                const correctAnswerDisplay = document.getElementById('correctAnswerDisplay');
+                correctAnswerDisplay.textContent = `Correct answer: ${correctAnswer}`;
+                
+                // Apply life lost animation to lives counter
+                const livesElement = document.querySelector('.lives');
+                livesElement.classList.add('life-lost-animation');
+                
+                // Apply incorrect answer animation to button and background
+                submitButton.classList.add('incorrect-animation');
+                gameContainer.classList.add('incorrect-background');
+                
+                // Wait for all animations to complete before continuing
+                setTimeout(() => {
+                    // Remove animations
+                    submitButton.classList.remove('incorrect-animation');
+                    gameContainer.classList.remove('incorrect-background');
+                    livesElement.classList.remove('life-lost-animation');
+                    
+                    // Reset selection
+                    document.querySelectorAll('.number-button').forEach(button => {
+                        button.style.opacity = '1';
+                    });
+                    
+                    // Clear all rectangle blocks
+                    clearRectangleBlocks();
+                    
+                    // Set waiting flag and disable submit button
+                    waitingForClick = true;
+                    submitButton.classList.add('disabled');
+                    
+                    // Change button text to "Tap to continue"
+                    const buttonContent = submitButton.querySelector('.button-content');
+                    const submitText = buttonContent.querySelector('.submit-text');
+                    submitText.textContent = 'TAP TO CONTINUE';
+                    
+                    // Add click event listener to continue game
+                    const continueGame = function() {
+                        preparedAnswer = null;
+                        document.getElementById('preparedAnswer').textContent = '0';
+
+                        // Remove event listener
+                        document.removeEventListener('click', continueGame);
+                        
+                        // Hide answer
+                        correctAnswerDisplay.textContent = '1';
+                        
+                        // Re-enable submit button
+                        submitButton.classList.remove('disabled');
+                        
+                        // Reset button text back to "SUBMIT"
+                        submitText.textContent = 'SUBMIT';
+                        
+                        // Reset waiting flag
+                        waitingForClick = false;
+                        
+                        // Continue game
+                        if (lives <= 0) {
+                            // Game over - no lives left
+                            endGame();
+                        } else if (currentProblem >= totalProblems) {
+                            // Game completed with some mistakes
+                            endGame();
+                        } else {
+                            generateNewTask();
+                        }
+                    };
+                    
+                    // Add click event listener
+                    document.addEventListener('click', continueGame);
+                }, 1000);
+            }
+        }
+
+        function clearRectangleBlocks() {
+            // Reset button presses counter
+            buttonPresses = {
+                1: 0,
+                5: 0,
+                10: 0,
+                50: 0
+            };
+            
+            // Clear all rectangle blocks
+            document.querySelectorAll('.rectangle-block').forEach(block => {
+                block.innerHTML = '';
+            });
+        }
+
+        function generateNewTask() {
+            let divisor = getRandomInt(4, 15);
+            if (divisor === 10) {
+                divisor += getRandomInt(1, 5);
+            }
+
+            const correctAnswer = getRandomInt(15, 250);
+            const dividend = correctAnswer * divisor;
+
+            document.getElementById('dividend').textContent = dividend;
+            document.getElementById('divisor').textContent = divisor;
+            // Reset prepared answer for new task
+            preparedAnswer = null;
+            document.getElementById('preparedAnswer').textContent = '0';
+            // Clear rectangle blocks
+            clearRectangleBlocks();
+            // Remove correct answer from display
+            document.getElementById('correctAnswerDisplay').textContent = '';
+        }
+
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Load stats when page loads
+        loadStats();
+    </script>
+</body>
+</html> 

@@ -1,0 +1,15 @@
+{
+    "name": "janson-git/telegram-mini-app",
+    "description": "A simple Telegram mini app",
+    "type": "project",
+    "require": {
+        "php": "^8.0",
+        "longman/telegram-bot": "^0.80",
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}

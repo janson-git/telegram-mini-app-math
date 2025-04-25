@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="light dark">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Games</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            color-scheme: var(--tg-color-scheme, light dark);
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .menu-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .menu-button {
+            padding: 20px;
+            font-size: 24px;
+            border: none;
+            border-radius: 12px;
+            background-color: var(--tg-theme-button-color, #2481cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            cursor: pointer;
+            transition: opacity 0.2s;
+            font-weight: bold;
+        }
+
+        .menu-button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-container">
+        <h1 class="menu-title">Math Games</h1>
+        <div class="menu-buttons">
+            <!-- <button class="menu-button" onclick="openGame('multiplication')">Multiplication</button> -->
+            <button class="menu-button" onclick="openGame('division')">Division</button>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        function openGame(type) {
+            if (type === 'division') {
+                window.location.href = 'division.html';
+            }
+            // Add multiplication game later
+            // else if (type === 'multiplication') {
+            //     window.location.href = 'multiplication.html';
+            // }
+        }
+    </script>
+</body>
+</html> 
